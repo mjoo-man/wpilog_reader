@@ -1,5 +1,7 @@
 from fileOps import getFilePath
 
+import pandas as pd
+
 def main():
 	
     # get the directory of the logs to be analyzed
