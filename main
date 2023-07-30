@@ -1,12 +1,19 @@
-from fileOps import getFilePath
+from fileOps import *
 
 import pandas as pd
+import os
+
+
 
 def main():
 	
     # get the directory of the logs to be analyzed
     log_dir = getFilePath("Select Folder with the Logs")
+    # for development use
+    # log_dir = r"C:/Users/Micah/Desktop/7_28_rolling tests"
     
+    filenames = getCSVFiles(log_dir)
+   
 
 
 main()

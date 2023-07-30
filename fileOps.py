@@ -8,3 +8,15 @@ def getFilePath(message):
 	filepath = fd.askdirectory()
 	return filepath
 
+# filter out non csv files
+import os
+
+def getCSVFiles(directory):
+    files = os.listdir(directory)
+    filenames = []
+    for i in range(len(files)):
+        # read only .csv files
+        filename, extension =  os.path.splitext(files[i])
+        if extension == '.csv': 
+            filenames.append(filename+extension)
+    return filenames
