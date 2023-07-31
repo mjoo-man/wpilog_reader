@@ -32,10 +32,13 @@ def main():
 
         # read data in the enabled disabled
         run_data = pd.read_csv(file, index_col=0) # timestamp is the index
-        
+        # TODO: parse for data i want and plot them together
+
         run_data.plot()
         plt.show()
-      
+        # TODO: crop the data to desirable ranges, plot and save it to combine
+        # with the theoretical results
+        
         
 
 main()
