@@ -1,10 +1,5 @@
-from fileOps import fillWPIlog, getFilePath, getCSVFiles
-from updater import update_progress
-import pandas as pd
-import os
-
-import matplotlib.pyplot as plt
-
+from fileOps import fillWPIlog
+from plotOps import plotWPILog
 
 def main():
 
@@ -12,33 +7,6 @@ def main():
     # fillWPIlog()
 
     ''' if logs are already preprocessed plot them '''
-    # get the directory of the logs to be analyzed
-    log_dir = getFilePath("Select Folder with the Logs to Plot")
-
-    os.chdir(log_dir)
-
-    #create save directory is it doesnt already exist
-    # save_dir = os.path.join(log_dir, "filled_files")
-    # os.makedirs(save_dir, exist_ok=True)
-
-    filenames = getCSVFiles(log_dir)
-    prog = 0
-    for file in filenames:
-        update_progress(f"Working on {file}", prog/len(filenames))
-        prog+=1
-        
-        # just read the headers of each file 
-        headers = pd.read_csv(file, index_col=0, nrows=0).columns.tolist()
-
-        # read data in the enabled disabled
-        run_data = pd.read_csv(file, index_col=0) # timestamp is the index
-        # TODO: parse for data i want and plot them together
-
-        run_data.plot()
-        plt.show()
-        # TODO: crop the data to desirable ranges, plot and save it to combine
-        # with the theoretical results
-        
-        
+    plotWPILog()
 
 main()
