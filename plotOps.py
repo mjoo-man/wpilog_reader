@@ -9,14 +9,28 @@ import numpy as np
 def findEnableDisable(data):
     cycles = []
     s = data['NT:/FMSInfo/FMSControlData']
-    # while True:
-    #     try:
-    #         cycles.append(s.idxmax())
-    #         cycles.append[s[cycles[-1]::].idxmin()]
-    #     except:
-    #         break 
-    firstenable = s.idxmax()
-    return firstenable
+    cycles.append(s.idxmax())
+    while True:
+        if len(cycles)%2 == 0 and len(cycles)>1:
+            cycles.append(s[cycles[-1]::].idxmax())
+        else:
+            cycles.append(s[cycles[-1]::].idxmin())
+         
+        if (cycles[-1] == cycles[-2]) and (len(cycles)>=3):
+            # if the find thing starts repeating, we're done pop the last element and move on
+            cycles.pop(-1)
+            break 
+    
+    return cycles
+
+def getNumPlots(cycles):
+    n = len(cycles)
+    numPlots = 0
+    if n%2>0:
+        numPlots = n//2 +1
+    else:
+        numPlots = n//2
+    return numPlots
 
 def plotWPILog():
     # get the directory of the logs to be analyzed
@@ -34,14 +48,15 @@ def plotWPILog():
         headers = pd.read_csv(file, index_col=0, nrows=0).columns.tolist()
 
         simple_headers = [headers[i].replace("NT:/SmartDashboard/", "") for i in range(len(headers))]
-
+        
         simple_headers.index('Ball Pressure (psi)')
         #steering params
         steering = []
         steering.append(simple_headers.index('Pipe Angle'))
         steering.append(simple_headers.index('Pend Angle'))
-        # steering.append(simple_headers.index('Commanded Steer Position'))
-        # steering.append(simple_headers.index('Current Draw steerMotorB (amps)'))        
+        # steering.append(simple_headers.index('Ball Pressure (psi)'))
+        steering.append(simple_headers.index('Commanded Steer Position'))
+                
         # steering.append(simple_headers.index('NT:/FMSInfo/FMSControlData'))
     
         # read data in the enabled disabled
@@ -49,11 +64,19 @@ def plotWPILog():
         # TODO: parse for data i want and plot them together
         
         index_enable = findEnableDisable(run_data)
+        numPlots = getNumPlots(index_enable)
+        press_index = simple_headers.index('Ball Pressure (psi)')
+        # plot desired curves
+        print(index_enable, numPlots)
 
-        fig, ax = plt.subplots()
-        for p in steering:
-            run_data[headers[p]][index_enable::].plot(label=simple_headers[p])
-        plt.legend()
+        for i in range(numPlots):
+            plt.figure(i+1)
+            for p in steering: # for each data stream
+                run_data[headers[p]][index_enable[2*i]:index_enable[2*i+1]].plot(label=simple_headers[p])
+            
+            runPressure = round(run_data[headers[press_index]][index_enable[2*i]:index_enable[2*i+1]].mean(), 2)
+            plt.title(f"Response at {runPressure} psi")
+            plt.legend()
         # ax2 = ax.twinx()
         # # ax2.plot(run_data[headers[simple_headers.index('Ball Pressure (psi)')]], 'r')
         # ax2.set_ylim((0, 6))
