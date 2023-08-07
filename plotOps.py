@@ -72,15 +72,22 @@ def plotWPILog():
         for i in range(numPlots):
             plt.figure(i+1)
             for p in steering: # for each data stream
-                run_data[headers[p]][index_enable[2*i]:index_enable[2*i+1]].plot(label=simple_headers[p])
-            
-            runPressure = round(run_data[headers[press_index]][index_enable[2*i]:index_enable[2*i+1]].mean(), 2)
+                try:
+                    run_data[headers[p]][index_enable[2*i]:index_enable[2*i+1]].plot(label=simple_headers[p])
+                except IndexError:
+                    # if index happens to be out of range, plot the remainder of the file
+                    run_data[headers[p]][index_enable[2*i]::].plot(label=simple_headers[p])
+            try:
+                runPressure = round(run_data[headers[press_index]][index_enable[2*i]:index_enable[2*i+1]].mean(), 2)
+            except IndexError:
+                runPressure = round(run_data[headers[press_index]][index_enable[2*i]::].mean(), 2)
             plt.title(f"Response at {runPressure} psi")
             plt.legend()
-        # ax2 = ax.twinx()
-        # # ax2.plot(run_data[headers[simple_headers.index('Ball Pressure (psi)')]], 'r')
-        # ax2.set_ylim((0, 6))
         
+        # old code for checking
+        plt.figure(99)
+        for p in headers:
+            run_data[p].plot(label=p.replace("NT:/SmartDashboard/", ""))
         plt.show()
         # TODO: crop the data to desirable ranges, plot and save it to combine
         # with the theoretical results
