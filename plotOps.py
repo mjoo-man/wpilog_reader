@@ -66,9 +66,8 @@ def plotWPILog():
         index_enable = findEnableDisable(run_data)
         numPlots = getNumPlots(index_enable)
         press_index = simple_headers.index('Ball Pressure (psi)')
-        # plot desired curves
-        print(index_enable, numPlots)
 
+        # plot desired curves
         for i in range(numPlots):
             plt.figure(i+1)
             for p in steering: # for each data stream
@@ -82,12 +81,13 @@ def plotWPILog():
             except IndexError:
                 runPressure = round(run_data[headers[press_index]][index_enable[2*i]::].mean(), 2)
             plt.title(f"Response at {runPressure} psi")
+            plt.grid()
             plt.legend()
         
         # old code for checking
-        plt.figure(99)
-        for p in headers:
-            run_data[p].plot(label=p.replace("NT:/SmartDashboard/", ""))
+        # plt.figure(99)
+        # for p in headers:
+        #     run_data[p].plot(label=p.replace("NT:/SmartDashboard/", ""))
         plt.show()
         # TODO: crop the data to desirable ranges, plot and save it to combine
         # with the theoretical results

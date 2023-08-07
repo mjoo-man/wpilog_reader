@@ -1,5 +1,6 @@
 from fileOps import fillWPIlog
 from plotOps import plotWPILog
+from stackingPressures import stackPressures
 
 def main():
 
@@ -7,6 +8,9 @@ def main():
     # fillWPIlog()
 
     ''' if logs are already preprocessed plot them '''
-    plotWPILog()
+    # plotWPILog()
+
+    '''A custom plot to stack pipe responses on pressures'''
+    # stackPressures()
 
 main()
