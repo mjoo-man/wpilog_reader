@@ -1,3 +1,4 @@
+from pickle import FALSE
 from fileOps import getFilePath, getCSVFiles
 from updater import update_progress
 import pandas as pd
@@ -6,8 +7,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 from plotOps import findEnableDisable, getNumPlots
 
+def find_risetime(data): # data is a list of form [data values, time]
+    def find_nearest(array, value):
+        array = np.asarray(array)
+        idx = (np.abs(array - value)).argmin()
+        return array[idx]
+    
+    t = list(data[1])
+    x = list(data[0])
+    end = t.index(find_nearest(t,15)) # crop data to ~15 seconds
+    t = t[0:end]
+    x = x[0:end]
+    # find ss position of last ten values
+    x0 = x[0]
+    ss = np.average(x[-1])
+    rise_val =  x0 - 0.9*(x0 - ss)
+    
+    
+    rise_val = find_nearest(x, rise_val)
+    return t[x.index(rise_val)], rise_val
 
-def stackPressures():
+
+def stackPressures(return_data=False):
     # get the directory of the logs to be analyzed
     log_dir = getFilePath("Select Folder with the Logs to Plot")
 
@@ -61,37 +82,40 @@ def stackPressures():
 
                 nPress = round(run_data[headers[press_index]][index_enable[2*i]::].mean(), 2)
                 allData[nPress] = [n, ntime]
+    if (not return_data):
+        plt.figure(1)
+        ax = plt.axes()
+        colors = plt.cm.jet(np.linspace(0,1,len(allData.keys())))
+        for i in range(len(allData.keys())):
+            n = list(allData.keys())[i]
+            t = allData[n][1]
+            data = allData[n][0]
+            plt.plot(t, data, color=colors[i], label=str(n)+' psi')
+            # x, y = find_risetime([data, t])
+            # plt.scatter(x, y, color=colors[i])
+        # plt.legend()
+        ax.set_facecolor('gray')
+        # ax.xaxis.set_major_formatter(lambda x, pos: str(x/200))
+        plt.ylabel("Angle")
+        plt.title("Pipe Response at Different Pressures")
+        plt.xlabel("time (s)")
+        plt.grid()
 
-    plt.figure(1)
-    ax = plt.axes()
-    colors = plt.cm.jet(np.linspace(0,1,len(allData.keys())))
-    for i in range(len(allData.keys())):
-        n = list(allData.keys())[i]
-        t = allData[n][1]
-        data = allData[n][0]
-        plt.plot(t, data/data[0], color=colors[i], label=str(n)+' psi')
-    plt.legend()
-    ax.set_facecolor('gray')
-    # ax.xaxis.set_major_formatter(lambda x, pos: str(x/200))
-    plt.ylabel("Angle / Starting Angle")
-    plt.title("Pipe Response at Different Pressures")
-    plt.xlabel("time (s)")
-    plt.grid()
-
-    # plt.figure(2)
-    # ax = plt.axes()
-    # des_press = [0.98, 1.48, 2.04, 2.96, 3.47, 4.99, 5.46]
-    # colors = plt.cm.jet(np.linspace(0,1,len(des_press)))
-    # for i in range(len(des_press)):
-    #     n = des_press[i]
-    #     plt.plot(allData[n]/allData[n][0], color=colors[i], label=str(n)+' psi')
-    # plt.legend()
-    # ax.set_facecolor('gray')
-    # # ax.xaxis.set_major_formatter(lambda x, pos: str(x/200))
-    # plt.grid()
-    # plt.ylabel("Angle / Starting Angle")
-    # plt.title("Pipe Response at Different Pressures")
-    # plt.xlabel("Sample")
-    plt.show()
-
+        # plt.figure(2)
+        # ax = plt.axes()
+        # des_press = [0.98, 1.48, 2.04, 2.96, 3.47, 4.99, 5.46]
+        # colors = plt.cm.jet(np.linspace(0,1,len(des_press)))
+        # for i in range(len(des_press)):
+        #     n = des_press[i]
+        #     plt.plot(allData[n]/allData[n][0], color=colors[i], label=str(n)+' psi')
+        # plt.legend()
+        # ax.set_facecolor('gray')
+        # # ax.xaxis.set_major_formatter(lambda x, pos: str(x/200))
+        # plt.grid()
+        # plt.ylabel("Angle / Starting Angle")
+        # plt.title("Pipe Response at Different Pressures")
+        # plt.xlabel("Sample")
+        plt.show()
+    else:
+        return allData
         
