@@ -25,7 +25,7 @@ def getCSVFiles(directory):
 def fillWPIlog():
 	# get the directory of the logs to be analyzed
 	log_dir = getFilePath("Select Folder with the Logs")
-
+	print(log_dir)
 	os.chdir(log_dir)
 	# for development use
 	# log_dir = r"C:\Users\Micah\Desktop\7_28_rolling tests"

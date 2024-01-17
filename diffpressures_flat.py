@@ -4,7 +4,8 @@ import numpy as np
 
 def flat_model(psi):
     # i measured this from data we collected
-    return 0.1802*psi**2 - 1.7484*psi + 9.6473
+    #return 0.1802*psi**2 - 1.7484*psi + 9.6473
+    return np.sqrt(4*81.87/(np.pi*psi))
 
 def find_risetime(data): # data is a list of form [data values, time]
     def find_nearest(array, value):
@@ -45,9 +46,9 @@ for i in range(len(data.keys())):
 plt.legend()
 ax.set_facecolor('gray')
 # ax.xaxis.set_major_formatter(lambda x, pos: str(x/200))
-plt.ylabel("SS Response Error/inital angle")
-plt.title("SS Error v flat size")
-plt.xlabel("Flat Diamter (in) ")
+plt.ylabel("SS Error/Inital angle")
+plt.title("Steady State Error vs. Flat Diameter")
+plt.xlabel("Flat Diameter (in) ")
 plt.grid()
 
 plt.figure(2)
@@ -67,7 +68,7 @@ ax.set_facecolor('gray')
 # ax.xaxis.set_major_formatter(lambda x, pos: str(x/200))
 plt.ylabel("95% Rise time (s)")
 plt.title("Rise time v flat size")
-plt.xlabel("Flat Diamter (in) ")
+plt.xlabel("Flat Diameter (in) ")
 plt.grid()
 
 plt.show()

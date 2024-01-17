@@ -63,38 +63,57 @@ def plotWPILog():
         des_headers_drive = ['Drive Angle', 'Commanded Drive Velocity', 'Drive Velocity']
         des_headers_pipe = ['Pipe Angle', 'Pend Angle', 'Commanded Steer Position']
 
-        # read data in the enabled disabled
         run_data = pd.read_csv(file, index_col=0) # timestamp is the index
-        # TODO: parse for data i want and plot them together
+        
         index_enable = findEnableDisable(run_data)
         numPlots = getNumPlots(index_enable)
         press_index = simple_headers.index('Ball Pressure (psi)')
 
+        ax = run_data.plot()
         for d in [des_headers_drive, des_headers_pipe]:
             idx_plot_headrs = getHeaderstoPlot(simple_headers, d)
 
             # plot desired curves
             for i in range(numPlots):
+                startTime = index_enable[2*i]
                 plt.figure()
                 for p in idx_plot_headrs: # for each data stream
+                    # run_data[headers[p]] = -run_data[headers[p]] # flip the signs
+                    run_data[headers[p]] = 180/np.pi*run_data[headers[p]] # flip the signs
+        
                     try:
-                        run_data[headers[p]][index_enable[2*i]:index_enable[2*i+1]].plot(label=simple_headers[p])
+                       new = pd.DataFrame(run_data[headers[p]][index_enable[2*i]:index_enable[2*i+1]])
+                       new = new.set_index(new.index.values - startTime)
+                       plt.plot(new, label=simple_headers[p])
                     except IndexError:
                         # if index happens to be out of range, plot the remainder of the file
-                        run_data[headers[p]][index_enable[2*i]::].plot(label=simple_headers[p])
+                        new = pd.DataFrame(run_data[headers[p]][index_enable[2*i]::])
+                        new.set_index(new.index.values - startTime)
+                        plt.plot(new, label=simple_headers[p])
                 try:
-                    runPressure = round(run_data[headers[press_index]][index_enable[2*i]:index_enable[2*i+1]].mean(), 2)
+                    runPressure = round(run_data[headers[press_index]][startTime:index_enable[2*i+1]].mean(), 2)
                 except IndexError:
                     runPressure = round(run_data[headers[press_index]][index_enable[2*i]::].mean(), 2)
-                plt.title(f"Response at {runPressure} psi")
+                # plt.title(f"Response at {runPressure} psi")
+                # n = len(run_data[headers[0]][index_enable[2*i]:index_enable[2*i+1]])
+                # print(f"Response at {runPressure} psi")
+                
+                # ax = plt.axes()
+                # ax.xaxis.set_major_formatter(lambda x, pos: x /2)
+                
+
+                plt.title(f"Robot Steering Reponse at {runPressure}psi")
+                plt.ylabel("Angle (deg)")
+                plt.xlabel("time (s)")
+                # plt.xticks(np.linspace(0, index_enable[2*i+1]-index_enable[2*i], n))
                 plt.grid()
                 plt.legend()
         
         # old code for checking
-        plt.figure(99)
-        for p in headers:
-            run_data[p].plot(label=p.replace("NT:/SmartDashboard/", ""))
-        plt.legend()
+        # plt.figure(99)
+        # for p in headers:
+        #     run_data[p].plot(label=p.replace("NT:/SmartDashboard/", ""))
+        # plt.legend()
         plt.show()
         # TODO: crop the data to desirable ranges, plot and save it to combine
         # with the theoretical results
