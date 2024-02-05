@@ -30,7 +30,7 @@ def fillWPIlog():
 	# for development use
 	# log_dir = r"C:\Users\Micah\Desktop\7_28_rolling tests"
 
-	#create save directory is it doesnt already exist
+	#create save directory if it doesnt already exist
 	save_dir = os.path.join(log_dir, "filled_files")
 	os.makedirs(save_dir, exist_ok=True)
 

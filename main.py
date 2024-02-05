@@ -9,7 +9,7 @@ def main():
     # fillWPIlog()
 
     ''' if logs are already preprocessed plot them for each log and each enable disable cycle'''
-    plotWPILog()
+    plotWPILog(True)
 
     '''A custom plot to stack pipe responses on pressures'''
     #function defaults to plotting, but if called stackPressures(True) itll return a dictionary with the time values and data
@@ -19,5 +19,5 @@ def main():
     # drive_Ang_Speed()
 
     ''' For robosoft '''
-    graphTankPress()
+    # graphTankPress()
 main()
