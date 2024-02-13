@@ -20,6 +20,14 @@ def getHeaderstoPlot(simple_headers, des_headers):
 def findEnableDisable(data):
     cycles = []
     s = data['NT:/FMSInfo/FMSControlData']
+
+    # handle a binary copy error
+    done = False
+    while not done:
+        if s.loc[s.idxmax()] > 45:
+            s.loc[s.idxmax()] = 32.0
+        else:
+            done = not done
     cycles.append(s.idxmax())
     while True:
         if len(cycles)%2 == 0 and len(cycles)>1:
@@ -43,11 +51,16 @@ def getNumPlots(cycles):
         numPlots = n//2
     return numPlots
 
-def plotWPILog():
+def plotWPILog(saveData=False):
     # get the directory of the logs to be analyzed
     log_dir = getFilePath("Select Folder with the Logs to Plot")
 
     os.chdir(log_dir)
+
+    data_for_csv = {}
+    if saveData:
+        save_dir = os.path.join(log_dir, "split_files")
+        os.makedirs(save_dir, exist_ok=True)
 
     filenames = getCSVFiles(log_dir)
     prog = 0
@@ -60,8 +73,8 @@ def plotWPILog():
 
         simple_headers = [headers[i].replace("NT:/SmartDashboard/", "") for i in range(len(headers))]
                
-        des_headers_drive = ['Drive Angle', 'Commanded Drive Velocity', 'Drive Velocity']
-        des_headers_pipe = ['Pipe Angle', 'Pend Angle', 'Commanded Steer Position']
+        des_headers_drive = ['Commanded Drive Velocity', 'Drive Velocity']
+        des_headers_pipe = ['Pipe Angle']
 
         run_data = pd.read_csv(file, index_col=0) # timestamp is the index
         
@@ -85,11 +98,15 @@ def plotWPILog():
                        new = pd.DataFrame(run_data[headers[p]][index_enable[2*i]:index_enable[2*i+1]])
                        new = new.set_index(new.index.values - startTime)
                        plt.plot(new, label=simple_headers[p])
+                       data_for_csv[simple_headers[p]] = new.values
+                       data_for_csv['time'] = new.index
                     except IndexError:
                         # if index happens to be out of range, plot the remainder of the file
                         new = pd.DataFrame(run_data[headers[p]][index_enable[2*i]::])
                         new.set_index(new.index.values - startTime)
                         plt.plot(new, label=simple_headers[p])
+                        data_for_csv[simple_headers[p]] = new.values
+                        data_for_csv['time'] = new.index
                 try:
                     runPressure = round(run_data[headers[press_index]][startTime:index_enable[2*i+1]].mean(), 2)
                 except IndexError:
@@ -114,8 +131,8 @@ def plotWPILog():
         # for p in headers:
         #     run_data[p].plot(label=p.replace("NT:/SmartDashboard/", ""))
         # plt.legend()
-        plt.show()
-        # TODO: crop the data to desirable ranges, plot and save it to combine
-        # with the theoretical results
+
+        pd.DataFrame(data=data_for_csv, index=data_for_csv['time']).to_csv(f"data_for {runPressure}.csv")
+        # plt.show()
         
         
