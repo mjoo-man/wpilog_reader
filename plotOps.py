@@ -23,7 +23,7 @@ def findEnableDisable(data):
 
     # handle a binary copy error
     done = False
-    while not done:
+    while not done: # rewrite any binary errors
         if s.loc[s.idxmax()] > 45:
             s.loc[s.idxmax()] = 32.0
         else:
@@ -35,7 +35,7 @@ def findEnableDisable(data):
         else:
             cycles.append(s[cycles[-1]::].idxmin())
          
-        if (cycles[-1] == cycles[-2]) and (len(cycles)>=3):
+        if (cycles[-1] == cycles[-2]) and (len(cycles)>=2):
             # if the find thing starts repeating, we're done pop the last element and move on
             cycles.pop(-1)
             break 
@@ -44,6 +44,7 @@ def findEnableDisable(data):
 
 def getNumPlots(cycles):
     n = len(cycles)
+
     numPlots = 0
     if n%2>0:
         numPlots = n//2 +1
@@ -77,7 +78,9 @@ def plotWPILog(saveData=False):
         des_headers_pipe = ['Pipe Angle']
 
         run_data = pd.read_csv(file, index_col=0) # timestamp is the index
-        
+
+        run_data['NT:/SmartDashboard/Pipe Angle'] = run_data['NT:/SmartDashboard/Pipe Angle'] * 180 / np.pi
+
         index_enable = findEnableDisable(run_data)
         numPlots = getNumPlots(index_enable)
         press_index = simple_headers.index('Ball Pressure (psi)')
@@ -92,7 +95,7 @@ def plotWPILog(saveData=False):
                 plt.figure()
                 for p in idx_plot_headrs: # for each data stream
                     # run_data[headers[p]] = -run_data[headers[p]] # flip the signs
-                    run_data[headers[p]] = 180/np.pi*run_data[headers[p]] # flip the signs
+                    # run_data[headers[p]] = 180/np.pi*run_data[headers[p]] # flip the signs
         
                     try:
                        new = pd.DataFrame(run_data[headers[p]][index_enable[2*i]:index_enable[2*i+1]])
@@ -132,7 +135,7 @@ def plotWPILog(saveData=False):
         #     run_data[p].plot(label=p.replace("NT:/SmartDashboard/", ""))
         # plt.legend()
 
-        pd.DataFrame(data=data_for_csv, index=data_for_csv['time']).to_csv(f"data_for {runPressure}.csv")
-        # plt.show()
+        # pd.DataFrame(data=data_for_csv, index=data_for_csv['time']).to_csv(f"data_for {runPressure}.csv")
+        plt.show()
         
         
