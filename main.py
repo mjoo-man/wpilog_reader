@@ -1,6 +1,6 @@
 from fileOps import fillWPIlog
 from plotOps import plotWPILog
-from AIAA_ascend import drive_Ang_Speed
+from AIAA_ascend import drive_Ang_Speed, changing_b
 from stackingPressures import stackPressures
 from pressureSwapping import graphTankPress
 def main():
@@ -20,4 +20,8 @@ def main():
 
     ''' For robosoft '''
     # graphTankPress()
+
+    '''Changing b'''
+    changing_b()
+
 main()

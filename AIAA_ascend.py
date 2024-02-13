@@ -59,3 +59,47 @@ def drive_Ang_Speed():
         ax2.legend(loc=1)
         align_yaxis(ax1, 0, ax2, 0)
         plt.show()
+
+
+def changing_b():
+    # get the directory of the logs to be analyzed
+    log_dir = getFilePath("Select Folder with the Logs to Plot")
+
+    os.chdir(log_dir)
+
+    filenames = getCSVFiles(log_dir)
+    prog = 0
+    for file in filenames:
+        update_progress(f"Working on {file}", prog / len(filenames))
+        prog += 1
+
+        # just read the headers of each file
+        headers = pd.read_csv(file, index_col=0, nrows=0).columns.tolist()
+
+        simple_headers = [headers[i].replace("NT:/SmartDashboard/", "") for i in range(len(headers))]
+
+        des_headers_drive = ['Pipe Angle', 'Ball Pressure (psi)']
+
+        run_data = pd.read_csv(file, index_col=0)  # timestamp is the index
+
+        print(headers)
+        # first plot frive angle
+
+        fig, ax1 = plt.subplots()
+        ax2 = ax1.twinx()
+
+        ax1.plot(run_data[headers[2]] * 180 / np.pi, color='black', label='Pipe Angle')
+        ax2.plot(run_data[headers[1]], color='blue', linestyle='dashed', label='Robot Pressure (psi)')  # from rad/s to mph
+
+        plt.title(f"Pipe Change with Pressure")
+        ax1.set_ylabel("Pipe Angle (deg)")
+        # ax1.set_ylim(-10,10)
+        ax2.set_ylim(0, 7)
+        ax2.set_ylabel("Robot Pressure")
+        ax1.set_xlabel("time (s)")
+        # plt.xticks(np.linspace(0, index_enable[2*i+1]-index_enable[2*i], n))
+        plt.grid()
+        ax1.legend(loc=2)
+        ax2.legend(loc=1)
+        # align_yaxis(ax1, 0, ax2, 0)
+        plt.show()
