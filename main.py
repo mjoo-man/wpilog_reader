@@ -6,7 +6,7 @@ from pressureSwapping import graphTankPress
 def main():
 
     ''' uncomment to preprocess the wpilog files '''
-    # fillWPIlog()
+    fillWPIlog()
 
     ''' if logs are already preprocessed plot them for each log and each enable disable cycle'''
     # plotWPILog()

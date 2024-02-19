@@ -53,16 +53,17 @@ def plot_wobbles(saveData=False):
             '''
             try:
                 # Plot pipe on ax1
-                new = pd.DataFrame(run_data[headers[5]][index_enable[2 * i]:index_enable[2 * i + 1]])
+                idx = simple_headers.index('Pipe Angle')
+                new = pd.DataFrame(run_data[headers[idx]][index_enable[2 * i]:index_enable[2 * i + 1]])
                 # new = new.set_index(new.index.values - startTime)
-                ax1.plot(new, color='green', label=simple_headers[5])
+                ax1.plot(new, color='green', label=simple_headers[idx])
                 peak_idx, heights = find_peaks(new.values.transpose()[0], height=-6)
                 ax1.scatter(new.index[peak_idx], heights['peak_heights'], marker='x')
                 # save the found peaks to a dataframe for later
                 data_for_csv[f'figure {i+2} peaks'] = heights['peak_heights']
                 data_for_csv[f'figure {i + 2} time'] = new.index[peak_idx]
 
-                for p in [2, 4]: # plot cmd dive vel and drive vel on ax2
+                for p in [simple_headers.index(x) for x in ['Commanded Drive Velocity', 'Drive Velocity']]: # plot cmd dive vel and drive vel on ax2
                     new = pd.DataFrame(run_data[headers[p]][index_enable[2 * i]:index_enable[2 * i + 1]])
                     # new = new.set_index(new.index.values - startTime)
                     ax2.plot(new, label=simple_headers[p])
@@ -71,16 +72,16 @@ def plot_wobbles(saveData=False):
             except IndexError:
                 # if index happens to be out of range, plot the remainder of the file
                 # plot pipe on ax1
-                new = pd.DataFrame(run_data[headers[5]][index_enable[2 * i]::])
+                new = pd.DataFrame(run_data[headers[idx]][index_enable[2 * i]::])
                 # new.set_index(new.index.values - startTime)
-                ax1.plot(new, color='green', label=simple_headers[5])
+                ax1.plot(new, color='green', label=simple_headers[idx])
                 # save data to file
                 peak_idx, heights = find_peaks(new.values.transpose()[0], height=1)
                 ax1.scatter(new.index[peak_idx], heights['peak_heights'], marker='x')
                 data_for_csv[f'figure {i + 2} peaks'] = heights['peak_heights']
                 data_for_csv[f'figure {i + 2} time'] = new.index[peak_idx]
 
-                for p in [2, 4]: # plot cmd dive vel and drive vel on ax2
+                for p in [simple_headers.index(x) for x in ['Commanded Drive Velocity', 'Drive Velocity']]:
                     new = pd.DataFrame(run_data[headers[p]][index_enable[2 * i]::])
                     # new = new.set_index(new.index.values - startTime)
                     ax2.plot(new, label=simple_headers[p])
@@ -106,10 +107,10 @@ def plot_wobbles(saveData=False):
             ax1.legend()
             ax2.legend()
             # align_yaxis(ax1, 0, ax2, 0)
-            os.chdir(save_dir)
-            pd.DataFrame(data=data_for_csv).to_csv(f"Figure {i+2} data Regular.csv")
-            data_for_csv = {} # clear the dict after everything is saved
-            os.chdir(log_dir)
+            # os.chdir(save_dir)
+            # pd.DataFrame(data=data_for_csv).to_csv(f"Figure {i+2} data Regular.csv")
+            # data_for_csv = {} # clear the dict after everything is saved
+            # os.chdir(log_dir)
         plt.show()
 
 plot_wobbles()
