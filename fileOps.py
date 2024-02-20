@@ -45,7 +45,7 @@ def fillWPIlog():
 		# read data in the enabled disabled
 		run_data = pd.read_csv(file, index_col=0) # timestamp is the index
 
-		fill_data = run_data.fillna(method="ffill") # forward fill all nan with the preceeding number
+		fill_data = run_data.ffill() # forward fill all nan with the preceeding number
 		fill_data = fill_data.fillna(0.0) # get the first nan to be zero
 
 
