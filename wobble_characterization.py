@@ -26,7 +26,7 @@ def plot_wobbles(saveData=False):
 
         simple_headers = [headers[i].replace("NT:/SmartDashboard/", "") for i in range(len(headers))]
 
-        des_headers = ['Commanded Drive Velocity', 'Drive Velocity', 'Pipe Angle']
+        des_headers = ['Drive Velocity', 'Pipe Angle']
 
         run_data = pd.read_csv(file, index_col=0)  # timestamp is the index
 
@@ -57,13 +57,13 @@ def plot_wobbles(saveData=False):
                 new = pd.DataFrame(run_data[headers[idx]][index_enable[2 * i]:index_enable[2 * i + 1]])
                 # new = new.set_index(new.index.values - startTime)
                 ax1.plot(new, color='green', label=simple_headers[idx])
-                peak_idx, heights = find_peaks(new.values.transpose()[0], height=-6)
-                ax1.scatter(new.index[peak_idx], heights['peak_heights'], marker='x')
-                # save the found peaks to a dataframe for later
-                data_for_csv[f'figure {i+2} peaks'] = heights['peak_heights']
-                data_for_csv[f'figure {i + 2} time'] = new.index[peak_idx]
+                # peak_idx, heights = find_peaks(new.values.transpose()[0], height=-1, prominence=0.5)
+                # ax1.scatter(new.index[peak_idx], heights['peak_heights'], marker='x')
+                # # save the found peaks to a dataframe for later
+                # data_for_csv[f'figure {i+2} peaks'] = heights['peak_heights']
+                # data_for_csv[f'figure {i + 2} time'] = new.index[peak_idx]
 
-                for p in [simple_headers.index(x) for x in ['Commanded Drive Velocity', 'Drive Velocity']]: # plot cmd dive vel and drive vel on ax2
+                for p in [simple_headers.index(x) for x in ['Drive Velocity']]: # plot cmd dive vel and drive vel on ax2
                     new = pd.DataFrame(run_data[headers[p]][index_enable[2 * i]:index_enable[2 * i + 1]])
                     # new = new.set_index(new.index.values - startTime)
                     ax2.plot(new, label=simple_headers[p])
@@ -76,12 +76,12 @@ def plot_wobbles(saveData=False):
                 # new.set_index(new.index.values - startTime)
                 ax1.plot(new, color='green', label=simple_headers[idx])
                 # save data to file
-                peak_idx, heights = find_peaks(new.values.transpose()[0], height=1)
-                ax1.scatter(new.index[peak_idx], heights['peak_heights'], marker='x')
-                data_for_csv[f'figure {i + 2} peaks'] = heights['peak_heights']
-                data_for_csv[f'figure {i + 2} time'] = new.index[peak_idx]
+                # peak_idx, heights = find_peaks(new.values.transpose()[0], height=-1, prominence=0.5)
+                # ax1.scatter(new.index[peak_idx], heights['peak_heights'], marker='x')
+                # data_for_csv[f'figure {i + 2} peaks'] = heights['peak_heights']
+                # data_for_csv[f'figure {i + 2} time'] = new.index[peak_idx]
 
-                for p in [simple_headers.index(x) for x in ['Commanded Drive Velocity', 'Drive Velocity']]:
+                for p in [simple_headers.index(x) for x in ['Drive Velocity']]:
                     new = pd.DataFrame(run_data[headers[p]][index_enable[2 * i]::])
                     # new = new.set_index(new.index.values - startTime)
                     ax2.plot(new, label=simple_headers[p])

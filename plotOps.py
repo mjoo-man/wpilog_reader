@@ -19,12 +19,14 @@ def getHeaderstoPlot(simple_headers, des_headers):
 
 def findEnableDisable(data):
     cycles = []
+
+
     s = data['NT:/FMSInfo/FMSControlData']
 
     # handle a binary copy error
     done = False
     while not done: # rewrite any binary errors
-        if s.loc[s.idxmax()] > 45:
+        if s.loc[s.idxmax()] > 33:
             s.loc[s.idxmax()] = 32.0
         else:
             done = not done
@@ -34,12 +36,12 @@ def findEnableDisable(data):
             cycles.append(s[cycles[-1]::].idxmax())
         else:
             cycles.append(s[cycles[-1]::].idxmin())
-         
+
         if (cycles[-1] == cycles[-2]) and (len(cycles)>=2):
             # if the find thing starts repeating, we're done pop the last element and move on
             cycles.pop(-1)
-            break 
-    
+            break
+
     return cycles
 
 def getNumPlots(cycles):

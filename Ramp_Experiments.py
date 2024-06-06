@@ -33,9 +33,10 @@ def ramp_data(saveData=False):
         headers = pd.read_csv(file, index_col=0, nrows=0).columns.tolist()
 
         simple_headers = [headers[i].replace("NT:/SmartDashboard/", "") for i in range(len(headers))]
-
-        des_headers = ['Commanded Drive Velocity', 'Drive Velocity', 'Drive Angle', 'Pitch Speed', 'Ramp_Angle']
-        ramp_idx = simple_headers.index('Ramp_Angle')
+        print(simple_headers)
+        # des_headers = ['Commanded Drive Velocity', 'Drive Velocity', 'Drive Angle', 'Pitch Speed', 'NumPlates']
+        des_headers = ['CMD Drive Velocity', 'Drive Velocity', 'Drive Angle', 'NumPlates']
+        ramp_idx = simple_headers.index('NumPlates')
         run_data = pd.read_csv(file, index_col=0)  # timestamp is the index
 
         # convert drive angle to degrees
@@ -66,7 +67,7 @@ def ramp_data(saveData=False):
                 data_for_csv[f'figure {i+2} peaks'] = heights['peak_heights']
                 data_for_csv[f'figure {i + 2} time'] = new.index[peak_idx].values
 
-                for p in [simple_headers.index(x) for x in ['Commanded Drive Velocity', 'Drive Velocity']]: # plot cmd dive vel and drive vel on ax2
+                for p in [simple_headers.index(x) for x in ['CMD Drive Velocity', 'Drive Velocity']]: # plot cmd dive vel and drive vel on ax2
                     new = pd.DataFrame(run_data[headers[p]][index_enable[2 * i]:index_enable[2 * i + 1]])
                     # new = new.set_index(new.index.values - startTime)
                     ax2.plot(new, label=simple_headers[p])
@@ -85,7 +86,7 @@ def ramp_data(saveData=False):
                 data_for_csv[f'figure {i + 2} peaks'] = heights['peak_heights']
                 data_for_csv[f'figure {i + 2} time'] = new.index[peak_idx].values
 
-                for p in [simple_headers.index(x) for x in ['Commanded Drive Velocity', 'Drive Velocity']]: # plot cmd dive vel and drive vel on ax2
+                for p in [simple_headers.index(x) for x in ['CMD Drive Velocity', 'Drive Velocity']]: # plot cmd dive vel and drive vel on ax2
                     new = pd.DataFrame(run_data[headers[p]][index_enable[2 * i]::])
                     # new = new.set_index(new.index.values - startTime)
                     ax2.plot(new, label=simple_headers[p])
@@ -111,7 +112,7 @@ def ramp_data(saveData=False):
             # pd.DataFrame(data=data_for_csv).to_csv(f"Figure {i+2} of {file[:5]} base peaks ramp at {get_angle(runRamp)}.csv")
             # data_for_csv = {} # clear the dict after everything is saved
             # plt.savefig(f"Figure {i+2} plot {file[:5]} base peaks ramp at {get_angle(runRamp)}.png")
-            os.chdir(log_dir)
+            # os.chdir(log_dir)
         # plt.show()
 
 ramp_data()
