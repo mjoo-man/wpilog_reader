@@ -30,7 +30,7 @@ D = np.array([[Pctank, -Pstank], [-Pcball, Psball]])  #
 # inital Conditions and integrating range
 Pt_0 =100 # psi
 Pb_0 =2.0  # psi
-tend = 60 # seconds to run sim
+tend = 90 # seconds to run sim
 
 class cooldown_states:
     def __init__(self):
@@ -47,16 +47,7 @@ class cooldown_states:
 comp1 = cooldown_states()
 t_off = 0
 E = np.array([[1, 0], [0, Pt_0 - Pb_0]])
-ICs = [Pt_0, Pb_0]
-def align_yaxis(ax1, v1, ax2, v2):
-    """adjust ax2 ylimit so that v2 in ax2 is aligned to v1 in ax1"""
-    _, y1 = ax1.transData.transform((0, v1))
-    _, y2 = ax2.transData.transform((0, v2))
-    inv = ax2.transData.inverted()
-    _, dy = inv.transform((0, 0)) - inv.transform((0, y1 - y2))
-    miny, maxy = ax2.get_ylim()
-    ax2.set_ylim(miny + dy, maxy + dy)
-
+# ICs = [Pt_0, Pb_0]
 
 def control_input2(t, q, setpoint, comp_obj):
     tol = 0.0 # psi
@@ -81,12 +72,12 @@ def control_input2(t, q, setpoint, comp_obj):
 
 def step_func(t):
     out = 0
-    if t < int(0.4*tend):
+    if t < int(24):
         out = 3.2 # psi
-    elif t < int(0.6*tend):
+    elif t < int(50):
         out = 2.5 # psi
     else:
-        out = 2.5 # psi
+        out = 3 # psi
 
     return out
 def newPressureSys(t, q, comp_obj):
@@ -102,73 +93,31 @@ def newPressureSys(t, q, comp_obj):
 
     return xdot[0][0], xdot[1][0]
 
-log_dir = getFilePath("Select Folder with the Logs to Plot")
+def plot_pressure_model(fig, ax1, ax2, ICs):
+    tspan = np.linspace(0, tend, 100)
+    sol = solve_ivp(newPressureSys,[0,tend], ICs, t_eval=tspan, max_step=0.1, args=(comp1,))
+    ax2.plot(tspan, sol.y[0], 'b--', label='Tank Pressure Model')
+    ax1.plot(tspan, sol.y[1], 'k--', label='Ball Pressure Model')
+    # ax1.plot(tspan, [step_func(tspan[i]) for i in range(len(tspan))], '--', label='Control Input')
+    # plt.title("Modeled System")
+    # ax1.set_ylabel("Ball Pressure (psi)")
+    # ax2.set_ylabel("Tank Pressure (psi)")
+    # ax1.set_xlabel("time (s)")
+    # plt.grid()
+    # ax1.legend(loc=2)
+    # ax2.legend(loc=1)
+    # align_yaxis(ax1,10,ax2,10)
+    # for ax, ylim in zip([ax1, ax2], [10, 110]):
+    #     ax.set_ylim(0, ylim)
+    #     ax.grid(True)
 
-os.chdir(log_dir)
-
-filenames = getCSVFiles(log_dir)
-prog = 0
-for file in filenames:
-    update_progress(f"Working on {file}", prog / len(filenames))
-    prog += 1
-
-    # just read the headers of each file
-    headers = pd.read_csv(file, index_col=0, nrows=0).columns.tolist()
-
-    simple_headers = [headers[i].replace("NT:/SmartDashboard/", "") for i in range(len(headers))]
-
-    des_headers_drive = ['Ball Pressure (psi)', 'Tank Pressure (psi)', 'pressure setpoint']
-
-    run_data = pd.read_csv(file, index_col=0)  # timestamp is the index
-    # print("0")
-    # print(run_data.index.values[0])
-    # print("Length below")
-    # print(len(run_data.index.values))
-    # print("Last element")
-    end = len(run_data.index.values)-1
-    # print(run_data.index.values[end])
-
-# times = []
-# for i in range(end):
-#     times.append(run_data.index.values[i])
-# tstart = times[0]
-# tfinish = times[len(times)-1]
-
-# sol = solve_ivp(newPressureSys,[tstart,tfinish], ICs, t_eval=times,max_step=0.1)
-
-tspan = np.linspace(0, tend, 50)
-sol = solve_ivp(newPressureSys,[0,tend], ICs, t_eval=tspan, max_step=0.1, args=(comp1,))
-# print("solt")
-# print(sol.t)
-# print("soly")
-# print(sol.y)
-# print("soly0")
-# print(sol.y[0])
-# Plot the modeled data
-fig, ax1 = plt.subplots()
-ax2 = ax1.twinx()
-ax2.plot(tspan, sol.y[0], color='blue', label='Tank Pressure (psi)')
-ax1.plot(tspan, sol.y[1], color='black', label='Ball Pressure (psi)')
-ax1.plot(tspan, [step_func(tspan[i]) for i in range(len(tspan))], '--', label='Control Input')
-plt.title("Modeled System")
-ax1.set_ylabel("Ball Pressure (psi)")
-ax2.set_ylabel("Tank Pressure (psi)")
-ax1.set_xlabel("time (s)")
-plt.grid()
-ax1.legend(loc=2)
-ax2.legend(loc=1)
-align_yaxis(ax1,10,ax2,10)
-for ax, ylim in zip([ax1, ax2], [10, 110]):
-    ax.set_ylim(0, ylim)
-    ax.grid(True)
-
-plt.figure(2)
-plt.plot(tspan, [control_input2(tspan[i], [sol.y[0][i], sol.y[1][i]], step_func(tspan[i]), comp1)[1] for i in range(len(tspan))], label='solenoid state')
-plt.plot(tspan, [control_input2(tspan[i], [sol.y[0][i], sol.y[1][i]], step_func(tspan[i]), comp1)[0] for i in range(len(tspan))], label='compressor state')
-plt.title("Control States")
-plt.legend()
-plt.show()
-
+    # plt.figure(2)
+    # plt.plot(tspan, [control_input2(tspan[i], [sol.y[0][i], sol.y[1][i]], step_func(tspan[i]), comp1)[1] for i in range(len(tspan))], label='solenoid state')
+    # plt.plot(tspan, [control_input2(tspan[i], [sol.y[0][i], sol.y[1][i]], step_func(tspan[i]), comp1)[0] for i in range(len(tspan))], label='compressor state')
+    # plt.title("Control States")
+    # plt.legend()
+    # plt.show()
+    return fig, ax1, ax2
 #####################################
 '''
 fig, bx1 = plt.subplots()
