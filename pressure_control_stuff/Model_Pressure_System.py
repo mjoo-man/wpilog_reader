@@ -14,6 +14,7 @@ kt = 0.001095878 * 0.85
 kb = 0.00013587
 Pc = 2.1366 *1.1
 Ps = 0.008
+
 #Volume ratio calculation
 vBall = 0.85 * (4 / 3) * (12 ** 3) * np.pi  # volume of the ball accounting for space taken up (in^3)
 vTanks = 574 * 3 / 16.387  # volume of pressure tanks converted to (in^3)
@@ -23,6 +24,10 @@ Pctank = 2.1366*1.1
 Pcball = 0.0446
 Pstank = 0.05791 * 1.3
 Psball = 0.004943 / 3.6
+
+# correction bc tanks had to be repaired
+kt *= 1
+Pstank *= 1.1
 
 C = np.array([[-kt, kt], [vRatio * kt, -vRatio * kt - kb]])  # Newly defined system
 D = np.array([[Pctank, -Pstank], [-Pcball, Psball]])  #
@@ -93,7 +98,7 @@ def newPressureSys(t, q, comp_obj):
 
     return xdot[0][0], xdot[1][0]
 
-def plot_pressure_model(fig, ax1, ax2, ICs):
+def plot_pressure_model(fig, ax1, fig2, ax2, ICs):
     tspan = np.linspace(0, tend, 100)
     sol = solve_ivp(newPressureSys,[0,tend], ICs, t_eval=tspan, max_step=0.1, args=(comp1,))
     ax2.plot(tspan, sol.y[0], 'b--', label='Tank Pressure Model')
@@ -117,7 +122,7 @@ def plot_pressure_model(fig, ax1, ax2, ICs):
     # plt.title("Control States")
     # plt.legend()
     # plt.show()
-    return fig, ax1, ax2
+    return fig, ax1, fig2, ax2
 #####################################
 '''
 fig, bx1 = plt.subplots()

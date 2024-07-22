@@ -18,19 +18,8 @@ def pressure_control_data():
 
     os.chdir(log_dir)
 
-    data_for_csv = {}
-    #
-
-
     filenames = getCSVFiles(log_dir)
     for file in filenames:
-
-        save_dir = os.path.join(log_dir, f"{file[:6]} ballast peak_data")
-        os.makedirs(save_dir, exist_ok=True)
-
-        ramp_heights = []
-        max_peaks = []
-        all_plates = []
 
         # just read the headers of each file
         headers = pd.read_csv(file, index_col=0, nrows=0).columns.tolist()
@@ -49,17 +38,18 @@ def pressure_control_data():
         ax = run_data.plot()
 
         list_fig_obj = []
+        list_fig2_obj =[]
         list_ax1_obj = []
         list_ax2_obj = []
 
         # plot desired curves
         for i in range(numPlots):
-            update_progress(f"Working on plot {i} of {numPlots}", i/numPlots)
+            update_progress(f"Working on plot {i} of {numPlots} in file {file}", i/numPlots)
 
             startTime = index_enable[2 * i]
 
             fig, ax1 = plt.subplots()
-            ax2 = ax1.twinx()
+            fig2, ax2 = plt.subplots()
             try:
                 # Plot ball Pressure and setpoint on ax1
                 idx = simple_headers.index(des_headers[0]) # index for ball pressure
@@ -96,9 +86,10 @@ def pressure_control_data():
                 ax2.plot(new.index, filtfilt(b, a, new.values.transpose()[0]), 'b', label=simple_headers[idx])
 
             list_fig_obj.append(fig)
+            list_fig2_obj.append(fig2)
             list_ax1_obj.append(ax1)
             list_ax2_obj.append(ax2)
 
-    return list_fig_obj, list_ax1_obj, list_ax2_obj
+    return list_fig_obj, list_ax1_obj, list_fig2_obj, list_ax2_obj
 
 
